@@ -10,3 +10,11 @@ For Larsen's sentiment analysis of articles
 - THE PROBLEM: right now, we could pull article samples and manually paste them into each new poll, but that would be really slow and inefficient. However, I don't know how to create a python script that can interact with the website and create polls from the SQL query sample-pull
 - IDEA: I think a solution is to create a method (method.py) that can create a form from the SQL query -- then the method could be called from the command line and create polls that way. Right now, the only method in the code is one that stores option and option_count variables.
 - There are many tutorials and the django online guide is pretty comprehensive but it is difficult for me to follow having never done something like this before
+
+
+## write-articlesHTML
+- This file is a simple file that creates an HTML page containing some generic text and a radio-button form. It has been combined with the SQL query that pulls article samples and prints the article sample and url
+- THE PROBLEM: without poll_project, there isn't an easy way to save the responses (that's the whole point of django)
+
+## article-query
+- This is just the SQL query in a separate file, because why not
