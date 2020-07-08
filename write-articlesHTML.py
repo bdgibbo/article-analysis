@@ -6,12 +6,63 @@ Created on Tue Jun 16 22:54:52 2020
 @author: bengibbons
 """
 
-# write-html.py
 import webbrowser
+import pyodbc
+import random
+import re
 
+# Connect to database
+conn = pyodbc.connect('''Driver={ODBC Driver 17 for SQL Server};
+                      Server=tcp:51.79.87.60;
+                      PORT=1433;
+                      Database=master;
+                      UID=SA;
+                      PwD=HeZAdgD55M5k;''')
+
+cursor = conn.cursor()
+
+# SQL query to randomly select one url and content from random source
+randsource = random.randrange(0, 3, 1)
+
+if randsource == 0:
+    cursor.execute('SELECT TOP 1 url, content FROM [master].[dbo].[CLEAN_FOX] ORDER BY NEWID()')
+elif randsource == 1:
+    cursor.execute('SELECT TOP 1 url, content FROM [master].[dbo].[RAW_NYT] ORDER BY NEWID()')
+elif randsource == 2:
+    cursor.execute('SELECT TOP 1 url, content FROM [master].[dbo].[RAW_BBC] ORDER BY NEWID()')
+else:
+    pass
+
+#gets all data from SQL query (row[0] = url. row[1] = content
+records = cursor.fetchall()
+
+#defines variables form records object
+for row in records:
+        url = row[0]
+        content = row[1]
+
+#splits content list into indvidual sentences
+contentlist = content.split('. ')
+l = re.compile("(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s").split(content)
+
+#defines the total rows from which to randomly select
+rowtotal = len(l)
+
+#randomly selects from list of sentences (-3 is a hacky way used to avoid end of page BS)
+randline = random.randrange(1, (rowtotal) - 3)
+
+
+#prints the url
+#print(url)
+
+#prints the sentence
+#print(l[randline])
+
+
+# write-html
 f = open('ArticleAnalysis.html','w')
 
-article_sample = "Article: New York Times. Ben is Awesome"
+article_sample = randline
 
 message = """<html>
 
@@ -19,21 +70,16 @@ message = """<html>
 <body style="background-color:lightcyan;">
 
 <h2>Instructions</h2>
-<p>Instructions for the raters will appear here. It is important that this
-is clear and concise. I wonder if I spelled concise correctly...It could be
-conscice. No, that doesn't look right. Concise it is.</p>
+<p>Instructions for the raters will appear here.</p>
 
 <h2>Article Sample</h2>
-<p>Somehow, the article sample needs to go here. The sample will be drawn from
-an SQL-query and can be anything from a sentence to the entire article. Thus,
-this will need to be generalized to take a parameter.<br>
-Update: as long as the query can be assigned to my variable (currently
-called article_sample), we might be in ok shape...</p>
+<p>The url and article sample appear below:</p>
 """
 f.write(message)
 
-# article sample will contain url and sample -- need to grab article sample
-f.write(article_sample)
+f.write(url)
+f.write("<html><p></p></html>")
+f.write(l[randline])
 
 message = """<html>
 <h2>Rating</h2>
@@ -56,7 +102,6 @@ message = """<html>
 
 f.write(message)
 f.close()
-
 
 
 #Change path to reflect file location
